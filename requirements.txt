@@ -6,3 +6,4 @@ transformers>=4.45
 torch>=2.4
 accelerate>=0.34
 datasets>=2.20
+openai>=1.0
