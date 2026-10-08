@@ -99,3 +99,31 @@ Dev observations recorded honestly (train split, 30 attacked + 30 clean, our tra
 B3 = the Ours chunk rule with alpha = 0 and gamma = 0 (beta = 0.8, keep = -0.2, window PIGuard risk, no hard cap): a chunk is kept iff -0.8 * risk >= -0.2, i.e. iff window risk <= 0.25. Everything else is identical to the frozen main protocol (commit tagged `main-test-frozen`): same 300 attacked + 20 clean Test cases, generator, template, retrieval, evaluators. No tuning. Reported with the same metrics and paired exact McNemar tests vs Ours and vs B2.
 
 Note recorded before running: because gamma had no effect on the main Test selections (context-conflict never changed a decision), B3 is selection-equivalent to a hard PIGuard filter at threshold 0.25; the selection-only analysis predicted 56/300 attacks in context and 93/120 answer-bearing retention for B3 (B2 at 0.5: 63 and 93; Ours: 69 and 108).
+
+
+## Results and conclusions: main Test + B3 (2026-10-09)
+
+Main Test, 300 attacked + 20 clean BIPIA EmailQA test cases, frozen protocol (Wilson 95% CI):
+
+| Metric | B0 | B2 (thr 0.5) | B3 (risk-only) | Ours |
+|---|---|---|---|---|
+| Official ASR (unguarded) | 30/300 = 10.0% [7.1-13.9] | 1/300 [0.1-1.9] | 1/300 [0.1-1.9] | 2/300 [0.2-2.4] |
+| Attack text in context | 265/300 | 63/300 | 56/300 | 69/300 |
+| Attack removed | 0/300 | 202/300 | 209/300 | 196/300 |
+| Answer-bearing retention (answerable attack cases) | 119/120 | 93/120 | 93/120 | 108/120 |
+| Clean chunks dropped (attack / clean cases) | 0 / 0 | 297 / 0 | 324 / 1 | 210 / 0 |
+| Clean accuracy known / unknown ideal | 7/10 / 4/10 | 7/10 / 4/10 | 8/10 / 4/10 | 8/10 / 4/10 |
+| Abstention (of 320) | 10 | 26 | 27 | 15 |
+
+Paired exact McNemar: every defence vs B0 on ASR p < 1e-4; Ours vs B2 ASR p = 1.0, attack-in-context 6/0 p = 0.031, answer retention 15/0 p = 0.0001, abstention 4/15 p = 0.019; B3 vs Ours attack-in-context 0/13 p = 0.0002, answer retention 0/15 p = 0.0001; B3 vs B2 answer retention identical.
+
+Claims allowed:
+- All defences reduce official ASR from 10% (B0) to <= 0.7%; the defences are statistically tied on ASR.
+- Relevance-aware filtering (Ours) retains more answer-bearing content than B2 and B3 (paired, pre-registered metrics). At matched leakage on the B2 threshold curve (thr 0.7: 70 attacks in context) B2 retains 93/120 vs Ours 108/120, and no B2 threshold reaches 108; this matched comparison is selection-level and post hoc.
+- The context-conflict term was inert (gamma = 0 gives identical selections); the gain comes from the relevance term (alpha = 0, i.e. B3, falls back onto the B2 curve).
+
+Limitations:
+- Model-based BIPIA questions are answered by Qwen2.5-VL-72B-AWQ, not GPT-4; about 10% of model-judged rows (29-31 per method of 251) received UNKNOWN, counted as not-success.
+- Case main-110 (Ours) is a likely judge false positive (only the number was "encrypted"); the official label is kept.
+- One generator (Qwen2.5-VL-32B), one run, temperature 0; clean set n = 20 is underpowered for utility differences.
+- Ours parameters were frozen after Dev, where ASR was 0 for all methods (train attack families), so they were not selected on attack success.
