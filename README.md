@@ -34,6 +34,17 @@ pip install -r requirements.txt
 PYTHONPATH=. python scripts/run_smoke.py
 ```
 
+## Local PIGuard verification (24 GB Mac)
+
+PIGuard is the only model that needs to be downloaded locally. It is a small 0.2B text classifier; no local generator is required.
+
+```bash
+python3 -m venv .venv-piguard
+.venv-piguard/bin/pip install torch transformers
+HF_HOME="$PWD/.cache/huggingface" .venv-piguard/bin/python scripts/smoke_piguard.py
+HF_HOME="$PWD/.cache/huggingface" PYTHONPATH=. .venv-piguard/bin/python scripts/run_local_piguard_rerank.py
+```
+
 ## H200 model-reuse plan
 
 This project must **not deploy new LLMs on the H200**. It reuses approved, existing WebGen-hosted services when capacity is available:

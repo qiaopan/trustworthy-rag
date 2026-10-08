@@ -4,13 +4,13 @@ retrieval:
   top_n: 10
   final_k: 3
 models:
-  generator: meta-llama/Llama-3.1-8B-Instruct
-  optional_cross_model: Qwen/Qwen2.5-14B-Instruct
-  embedder: BAAI/bge-base-en-v1.5
+  generator: Qwen2.5-VL-32B-Instruct
+  judge: Qwen2.5-VL-72B-Instruct-AWQ
+  embedder: bge-m3
   guard: leolee99/PIGuard
+# Existing H200 services only; internal endpoints go in ignored h200_reuse.local.yaml.
 generator_runtime:
-  dtype: bfloat16
-  device_map: auto
+  request_concurrency: 1
   max_new_tokens: 256
 reranking:
   alpha: 1.0

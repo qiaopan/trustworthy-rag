@@ -22,7 +22,9 @@ class PIGuardRiskScorer:
         from transformers import AutoModelForSequenceClassification, AutoTokenizer, pipeline
         tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
         model = AutoModelForSequenceClassification.from_pretrained(model_name, trust_remote_code=True)
-        self.classifier = pipeline("text-classification", model=model, tokenizer=tokenizer, device=device, top_k=None)
+        self.classifier = pipeline(
+            "text-classification", model=model, tokenizer=tokenizer, device=device, truncation=True, top_k=None
+        )
 
     def score(self, text: str) -> float:
         labels = self.classifier(text)[0]
