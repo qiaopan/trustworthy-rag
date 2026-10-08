@@ -11,6 +11,7 @@ Course-project experiment scaffold for risk-aware retrieval against indirect pro
 - `configs/h200_reuse.example.yaml`: endpoint placeholders for existing H200 services
 - `docs/DECISIONS.md`: experiment decisions and current operational constraints
 - `docs/HANDOFF.md`: concise state for a later agent or collaborator
+- `docs/RESOURCE_REQUEST.md`: concise requested deployment resources for a dedicated experiment allocation
 - `scripts/run_smoke.py`: offline end-to-end sanity check
 - `scripts/build_emailqa_dev_manifest.py`: deterministic, offline 30-case Dev manifest builder/verifier
 - `data/manifests/emailqa_dev_30.jsonl`: fixed stratified references into BIPIA (not copied benchmark text)
