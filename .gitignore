@@ -1,0 +1,10 @@
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.DS_Store
+outputs/
+data/raw/
+data/processed/
+third_party/BIPIA/
+third_party/PIGuard/

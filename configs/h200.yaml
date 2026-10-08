@@ -1,0 +1,22 @@
+seed: 2026
+device: cuda
+retrieval:
+  top_n: 10
+  final_k: 3
+models:
+  generator: meta-llama/Llama-3.1-8B-Instruct
+  optional_cross_model: Qwen/Qwen2.5-14B-Instruct
+  embedder: BAAI/bge-base-en-v1.5
+  guard: leolee99/PIGuard
+generator_runtime:
+  dtype: bfloat16
+  device_map: auto
+  max_new_tokens: 256
+reranking:
+  alpha: 1.0
+  beta: 0.8
+  gamma: 0.4
+  hard_filter_threshold: 0.5
+paths:
+  bipia_root: third_party/BIPIA
+  output_dir: outputs
