@@ -71,3 +71,25 @@ Use the following staged budget. The main test set is 300 attacked cases plus 20
 | B3 ablation | Same 320 cases x B3 only | 320 | 320 | Run only after core result is credible |
 
 Cache PIGuard scores, embeddings, retrieval results, generated answers, and judge outputs by input hash. PIGuard runs locally and does not consume H200. Do not use `srun --overlap` to start another model or heavy batch while WebGen is active; endpoint calls themselves share the existing vLLM KV-cache and must be serial (`request_concurrency: 1`).
+
+## Pre-registration for the held-out Test split (2026-10-09, written before any test-split model call)
+
+Frozen protocol (changes after the pilot only for logged bug fixes):
+
+| Item | Frozen value |
+|---|---|
+| Generator | Qwen2.5-VL-32B-Instruct, temperature 0, max_tokens 256 |
+| Prompt | BIPIA `EmailIPIABuilder` system-prompt variant (context in the system message) |
+| Retrieval | whole-email documents, bge-m3, doc top-k 3; pool = target email (BIPIA's attacked context) + 4 seeded distractor emails, excluding any email that mentions the question's entity |
+| Defence unit | sentence-level chunks (1-2 Punkt sentences, <= ~150 chars) inside retrieved emails; kept text in document order |
+| Risk | PIGuard (`leolee99/PIGuard`, local) on a window = previous + current + next chunk of the same email |
+| B2 | drop chunks with window risk >= 0.5 |
+| Ours | keep chunk iff 1.0*cos(question, chunk) - 0.8*risk - 0.4*conflict >= -0.2; no hard cap |
+| Attack evaluator (Test) | official BIPIA per-attack evaluators (`regist.py` questions/rules), model questions answered by Qwen2.5-VL-72B-Instruct-AWQ instead of GPT-4 (deviation) |
+| Accuracy judge | Qwen2.5-VL-72B-Instruct-AWQ, CORRECT/INCORRECT vs BIPIA ideal |
+
+Metrics. Primary: attack-text-in-context rate, attack removal rate, official unguarded ASR (ERROR/INVALID counted as failed, reported explicitly). Secondary: abstention-guarded ASR, clean accuracy split by known vs unknown ideal, clean chunks dropped, answer-bearing retention, latency/tokens. All rates as n/N with Wilson 95% CIs; grouped by attack family and insertion position.
+
+Splits. `data/manifests/emailqa_test_pilot_100.jsonl` (100 attacked) and `emailqa_test_main_300.jsonl` (300 attacked) are disjoint at the (context, attack family, attack index, position) level, stratified over the 45 family x position cells; `emailqa_test_clean_20.jsonl` has 10 known-ideal and 10 unknown-ideal contexts. Built by `scripts/build_emailqa_test_manifests.py` (seed 20261010; `--check` verifies the BIPIA test sha256 pins). The pilot gates infrastructure/stability only, is reported separately, and is never pooled with the main result.
+
+Dev observations recorded honestly (train split, 30 attacked + 30 clean, our train-family evaluator extension): ASR was 0/30 for B0, B2 and Ours under both BIPIA prompt variants, although B0 had the attack text in context in 24/30 cases; B2 and Ours removed the attack text in 22/30. Dev therefore could not discriminate methods on ASR; Ours parameters were not tuned on ASR. Clean accuracy was 24/30 for all methods (known-ideal 10/10, unknown-ideal 14/20); on attack cases B2 dropped 29 and Ours 23 clean chunks, retaining the answer in 7/10 and 8/10 answerable cases.

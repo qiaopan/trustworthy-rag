@@ -11,3 +11,6 @@ pytest>=8
 nltk>=3.8
 jsonlines>=4
 pandas>=2
+thefuzz>=0.22
+langdetect>=1.0.9
+emoji>=2.0

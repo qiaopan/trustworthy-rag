@@ -1,0 +1,21 @@
+{"benchmark": "microsoft/BIPIA", "email_test_sha256": "217b403faaa1d0cb12c24892bea39f4a0b9e2819919ac7e2b902006e28278cdb", "kind": "trustworthy-rag-emailqa-test-manifest", "schema_version": 1, "seed": 20261010, "subset": "clean", "text_attack_test_sha256": "75750e7b4e8b34e8f9d88d89b357aeaaf02bd07f9e493ccd37eda74a0cd7c7f8"}
+{"case_id": "emailqa-test-clean-01", "context_index": 4, "label": "clean", "schema_version": 1, "seed": 20261010, "split": "test", "subset": "clean", "task": "email"}
+{"case_id": "emailqa-test-clean-02", "context_index": 5, "label": "clean", "schema_version": 1, "seed": 20261010, "split": "test", "subset": "clean", "task": "email"}
+{"case_id": "emailqa-test-clean-03", "context_index": 6, "label": "clean", "schema_version": 1, "seed": 20261010, "split": "test", "subset": "clean", "task": "email"}
+{"case_id": "emailqa-test-clean-04", "context_index": 7, "label": "clean", "schema_version": 1, "seed": 20261010, "split": "test", "subset": "clean", "task": "email"}
+{"case_id": "emailqa-test-clean-05", "context_index": 10, "label": "clean", "schema_version": 1, "seed": 20261010, "split": "test", "subset": "clean", "task": "email"}
+{"case_id": "emailqa-test-clean-06", "context_index": 18, "label": "clean", "schema_version": 1, "seed": 20261010, "split": "test", "subset": "clean", "task": "email"}
+{"case_id": "emailqa-test-clean-07", "context_index": 31, "label": "clean", "schema_version": 1, "seed": 20261010, "split": "test", "subset": "clean", "task": "email"}
+{"case_id": "emailqa-test-clean-08", "context_index": 38, "label": "clean", "schema_version": 1, "seed": 20261010, "split": "test", "subset": "clean", "task": "email"}
+{"case_id": "emailqa-test-clean-09", "context_index": 39, "label": "clean", "schema_version": 1, "seed": 20261010, "split": "test", "subset": "clean", "task": "email"}
+{"case_id": "emailqa-test-clean-10", "context_index": 42, "label": "clean", "schema_version": 1, "seed": 20261010, "split": "test", "subset": "clean", "task": "email"}
+{"case_id": "emailqa-test-clean-11", "context_index": 2, "label": "clean", "schema_version": 1, "seed": 20261010, "split": "test", "subset": "clean", "task": "email"}
+{"case_id": "emailqa-test-clean-12", "context_index": 11, "label": "clean", "schema_version": 1, "seed": 20261010, "split": "test", "subset": "clean", "task": "email"}
+{"case_id": "emailqa-test-clean-13", "context_index": 12, "label": "clean", "schema_version": 1, "seed": 20261010, "split": "test", "subset": "clean", "task": "email"}
+{"case_id": "emailqa-test-clean-14", "context_index": 15, "label": "clean", "schema_version": 1, "seed": 20261010, "split": "test", "subset": "clean", "task": "email"}
+{"case_id": "emailqa-test-clean-15", "context_index": 19, "label": "clean", "schema_version": 1, "seed": 20261010, "split": "test", "subset": "clean", "task": "email"}
+{"case_id": "emailqa-test-clean-16", "context_index": 20, "label": "clean", "schema_version": 1, "seed": 20261010, "split": "test", "subset": "clean", "task": "email"}
+{"case_id": "emailqa-test-clean-17", "context_index": 33, "label": "clean", "schema_version": 1, "seed": 20261010, "split": "test", "subset": "clean", "task": "email"}
+{"case_id": "emailqa-test-clean-18", "context_index": 36, "label": "clean", "schema_version": 1, "seed": 20261010, "split": "test", "subset": "clean", "task": "email"}
+{"case_id": "emailqa-test-clean-19", "context_index": 41, "label": "clean", "schema_version": 1, "seed": 20261010, "split": "test", "subset": "clean", "task": "email"}
+{"case_id": "emailqa-test-clean-20", "context_index": 46, "label": "clean", "schema_version": 1, "seed": 20261010, "split": "test", "subset": "clean", "task": "email"}
