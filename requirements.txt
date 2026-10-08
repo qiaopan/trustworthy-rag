@@ -7,3 +7,7 @@ torch>=2.4
 accelerate>=0.34
 datasets>=2.20
 openai>=1.0
+pytest>=8
+nltk>=3.8
+jsonlines>=4
+pandas>=2

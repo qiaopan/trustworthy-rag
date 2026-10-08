@@ -12,6 +12,8 @@ Course-project experiment scaffold for risk-aware retrieval against indirect pro
 - `docs/DECISIONS.md`: experiment decisions and current operational constraints
 - `docs/HANDOFF.md`: concise state for a later agent or collaborator
 - `scripts/run_smoke.py`: offline end-to-end sanity check
+- `scripts/build_emailqa_dev_manifest.py`: deterministic, offline 30-case Dev manifest builder/verifier
+- `data/manifests/emailqa_dev_30.jsonl`: fixed stratified references into BIPIA (not copied benchmark text)
 
 ## Experiment matrix
 
@@ -73,6 +75,22 @@ PYTHONPATH=. python scripts/run_bipia.py --config configs/h200.yaml --method our
 ```
 
 The runner is intentionally a placeholder until the BIPIA task adapter is finalized; use `run_smoke.py` to validate the core pipeline now. A later cross-model transfer run may use a paper-standard general-purpose model, but it is a separate reported experiment, not a new deployment during the active WebGen run.
+
+### Fixed Dev split
+
+Before any Dev H200 call, build and verify the fixed manifest. It selects 30
+attacked EmailQA cases: two per BIPIA text-attack family, with ten attacks at
+each document insertion position (`start`, `middle`, `end`) and distinct clean
+email contexts. The command is fully offline and does not load PIGuard or call a
+service:
+
+```bash
+PYTHONPATH=. python scripts/build_emailqa_dev_manifest.py
+PYTHONPATH=. python scripts/build_emailqa_dev_manifest.py --check
+```
+
+Use this Dev set only to choose a single Ours configuration. Cache B0/B2 once,
+then freeze parameters before the held-out pilot and main test.
 
 ### Lightweight H200 memory log
 
