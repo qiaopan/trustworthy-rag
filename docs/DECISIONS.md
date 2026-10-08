@@ -23,3 +23,22 @@ The project reuses existing H200 services rather than deploying any additional L
 ## H200 observation
 
 At the time of inspection, the WebGen Slurm job `23385` owned two H200 GPUs. The worker log and direct readings showed high, but non-OOM, usage: known free-memory observations were approximately 21 GiB, 32 GiB, 34 GiB, and 28 GiB across the two cards at two sampled times. The worker log contained no CUDA OOM, engine-failure, or restart signal. This is not a continuous 24-hour history; use `scripts/h200_gpu_monitor.sh` for prospective measurements.
+
+## H200 request budget
+
+EmailQA has 50 test contexts and the BIPIA text-attack test file has 75 prompts. BIPIA constructs every context/attack pair at three insertion positions:
+
+`50 contexts x 75 attacks x 3 positions = 11,250 poisoned cases`.
+
+Running all five methods (B0--B3 and Ours) without caching would therefore require up to **56,250 generator calls** and **56,250 judge calls**. This is too large to run alongside active WebGen work, even though it reuses existing services.
+
+Use the following staged budget instead:
+
+| Stage | Suggested cases before method matrix | 32B generation calls | 72B judge calls | When to run |
+|---|---:|---:|---:|---|
+| Manual integration check | 2 | 10 | 10 | Approved low-load moment only |
+| Pilot | 10 contexts x 10 attacks x 1 position = 100 | 500 | 500 | Low-load window; concurrency 1 |
+| Main EmailQA result | 50 contexts x 15 attack families x 3 positions = 2,250 | 11,250 | 11,250 | WebGen idle/approved dedicated window |
+| Full combinatorial sweep | 11,250 | 56,250 | 56,250 | Only if required and separately scheduled |
+
+Cache PIGuard scores, embeddings, retrieval results, generated answers, and judge outputs by input hash. PIGuard runs locally and does not consume H200. Do not use `srun --overlap` to start another model or heavy batch while WebGen is active; endpoint calls themselves share the existing vLLM KV-cache and must be serial (`request_concurrency: 1`).

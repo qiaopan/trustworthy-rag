@@ -22,6 +22,8 @@
 4. Run B0--B3 and Ours on a fixed BIPIA split, then evaluate answers with the designated 72B judge.
 5. Later, perform a separate cross-model transfer experiment.
 
+Read `DECISIONS.md` before submitting H200 requests. The full EmailQA combinatorial matrix is 56,250 generator plus 56,250 judge calls across five methods; begin with the documented 10-call manual check and 500-call pilot instead.
+
 ## Operational safety
 
 - Current WebGen job: `23385` on `csml3`; do not alter its Slurm queue, `filler.conf`, processes, or `.env`.
