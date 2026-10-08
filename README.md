@@ -36,6 +36,9 @@ PYTHONPATH=. python scripts/run_smoke.py
 On the H200, clone this repository including `third_party/`, create the environment, then run:
 
 ```bash
+git clone <YOUR_GITHUB_REPOSITORY_URL> trustworthy-rag
+cd trustworthy-rag
+bash scripts/bootstrap_third_party.sh
 python -m venv .venv
 source .venv/bin/activate
 pip install --upgrade pip
@@ -48,4 +51,4 @@ The default H200 models are `meta-llama/Llama-3.1-8B-Instruct`, `BAAI/bge-base-e
 
 ## Reproducibility notes
 
-`third_party/` is ignored by the project commit because it contains independently versioned repositories. Their remote URLs and checked-out commits are recorded in `third_party/REVISIONS.md`.
+`third_party/` is ignored by the project commit because it contains independently versioned repositories. Run `scripts/bootstrap_third_party.sh` after cloning; remote URLs and expected revisions are recorded in `third_party/REVISIONS.md`.
