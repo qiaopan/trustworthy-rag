@@ -38,12 +38,20 @@ Run methods in this priority order:
 2. **Ablation only after core success:** add B3 Risk-only Soft Rerank. This tests whether the relevance and context-conflict terms add value beyond injection risk.
 3. **Do not run B1 Keyword Filter unless required by the course marker.** It is a weak heuristic check, not a primary baseline.
 
+### Development-run policy
+
+- On the fixed 30-case Dev manifest, run **B0 and B2 once each** with fixed model revision, prompt, decoding parameters, and `temperature=0`. Cache the answers and judge outputs by input hash.
+- Explore Ours through multiple **local reranking configurations** first. Changing `alpha`, `beta`, `gamma`, or a threshold changes selected passages but does not require a generator call to inspect malicious-inclusion and retrieval metrics.
+- Send only a small number of promising Ours configurations to the generator/judge. This is the only repeated H200 work in Dev.
+- Once one Ours configuration is selected, freeze it before the held-out Test. Do not tune on Test or rerun B0/B2 merely because Ours has another Dev iteration.
+
 Use the following staged budget. The main test set is 300 attacked cases plus 20 clean cases. The clean cases measure normal-task utility and false positives; they do not contain injected text.
 
 | Stage | Cases and methods | 32B generation calls | 72B judge calls | Decision gate |
 |---|---:|---:|---:|---|
 | Manual integration check | 2 attacked cases x B0/B2/Ours | 6 | 6 | Endpoints and output format work |
-| Dev | 30 attacked cases x B0/B2/Ours; inspect a small benign set for over-defense | 90 + small benign check | 90 + small benign check | Ours improves ASR versus B0 and has acceptable utility versus B2 |
+| Dev baseline cache | 30 attacked cases x B0/B2 | 60 | 60 | One-time baseline outputs |
+| Dev Ours selection | 30 attacked cases x selected Ours candidates | 30 per candidate | 30 per candidate | Pick one frozen configuration; local ranking sweeps are free |
 | Small Test pilot | 100 attacked cases x B0/B2/Ours | 300 | 300 | Effect remains stable on held-out cases |
 | Main Test | 300 attacked + 20 clean cases x B0/B2/Ours | 960 | 960 | Main comparison result |
 | B3 ablation | Same 320 cases x B3 only | 320 | 320 | Run only after core result is credible |
