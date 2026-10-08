@@ -6,23 +6,27 @@ evaluation project only; no model training or fine-tuning is required.
 
 ## Requested allocation
 
-**2 × NVIDIA H200 GPUs (141 GB each)**, preferably with **32 CPU cores**, **128–256 GB RAM**, and **300–500 GB storage**.
+- 2 × NVIDIA H200 GPUs, 141 GB each.
+- 32 CPU cores preferred.
+- 128–256 GB system RAM preferred.
+- 300–500 GB project storage preferred.
 
-| GPU | Deployment | Estimated VRAM |
-|---|---|---:|
-| H200 GPU 1 | Qwen2.5-32B-Instruct generator, BF16/vLLM | 105–125 GB |
-| H200 GPU 2 | Qwen2.5-72B-Instruct-AWQ judge, vLLM | 75–105 GB |
-| GPU 2 or CPU | bge-m3 embedding model | 4–8 GB |
-| GPU 2 or CPU | PIGuard prompt-injection classifier | 2–6 GB, or CPU-only |
+## Planned model placement
+
+- **H200 GPU 1:** Qwen2.5-32B-Instruct generator, served with vLLM in BF16. Estimated use: 105–125 GB VRAM.
+- **H200 GPU 2:** Qwen2.5-72B-Instruct-AWQ judge, served with vLLM. Estimated use: 75–105 GB VRAM.
+- **GPU 2 or CPU:** bge-m3 embedding model. Estimated use: 4–8 GB VRAM if GPU-hosted.
+- **GPU 2 or CPU:** PIGuard prompt-injection classifier. Estimated use: 2–6 GB VRAM if GPU-hosted; CPU-only is also feasible.
 
 The generator answers RAG questions; the 72B model judges attack success and
 answer correctness; bge-m3 retrieves passages; and PIGuard scores
 prompt-injection risk before retrieved text enters the generator prompt.
 
-The experiment uses serial requests (concurrency = 1), caching, and small
-development batches first, so it does not require high throughput. Two GPUs
-leave enough memory margin to keep the 32B generator and quantized 72B judge
-available simultaneously without repeatedly reloading models.
+The project will begin with small, serial development runs for validation and
+will use caching throughout. Request concurrency for the larger evaluation can
+be increased later only after measuring GPU memory use and service stability.
+Two GPUs leave enough memory margin to keep the 32B generator and quantized
+72B judge available simultaneously without repeatedly reloading models.
 
 ## Deployment priority
 
