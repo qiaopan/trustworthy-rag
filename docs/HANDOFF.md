@@ -19,10 +19,10 @@
 1. Implement the BIPIA task adapter, beginning with EmailQA.
 2. Obtain approved internal URLs for the existing Qwen 32B, Qwen 72B-AWQ, and bge-m3 services. Do not scan ports, infer credentials, or write endpoint details into Git.
 3. Add an OpenAI-compatible client adapter using a local ignored endpoint config.
-4. Run B0--B3 and Ours on a fixed BIPIA split, then evaluate answers with the designated 72B judge.
+4. First run B0, B2, and Ours on the fixed BIPIA split; only add B3 after the core comparison is credible. Evaluate answers with the designated 72B judge.
 5. Later, perform a separate cross-model transfer experiment.
 
-Read `DECISIONS.md` before submitting H200 requests. The full EmailQA combinatorial matrix is 56,250 generator plus 56,250 judge calls across five methods; begin with the documented 10-call manual check and 500-call pilot instead.
+Read `DECISIONS.md` before submitting H200 requests. The planned core experiment is staged: 90 calls per model on Dev, then 300 per model for the small Test pilot, then 960 per model for the 300-attack/20-clean main Test. The full combinatorial matrix is explicitly out of scope.
 
 ## Operational safety
 

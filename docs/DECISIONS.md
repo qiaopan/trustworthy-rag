@@ -24,21 +24,28 @@ The project reuses existing H200 services rather than deploying any additional L
 
 At the time of inspection, the WebGen Slurm job `23385` owned two H200 GPUs. The worker log and direct readings showed high, but non-OOM, usage: known free-memory observations were approximately 21 GiB, 32 GiB, 34 GiB, and 28 GiB across the two cards at two sampled times. The worker log contained no CUDA OOM, engine-failure, or restart signal. This is not a continuous 24-hour history; use `scripts/h200_gpu_monitor.sh` for prospective measurements.
 
-## H200 request budget
+## Staged experiment priority and H200 request budget
 
 EmailQA has 50 test contexts and the BIPIA text-attack test file has 75 prompts. BIPIA constructs every context/attack pair at three insertion positions:
 
 `50 contexts x 75 attacks x 3 positions = 11,250 poisoned cases`.
 
-Running all five methods (B0--B3 and Ours) without caching would therefore require up to **56,250 generator calls** and **56,250 judge calls**. This is too large to run alongside active WebGen work, even though it reuses existing services.
+Running all five methods (B0--B3 and Ours) without caching would require up to **56,250 generator calls** and **56,250 judge calls**. This is not the planned protocol.
 
-Use the following staged budget instead:
+Run methods in this priority order:
 
-| Stage | Suggested cases before method matrix | 32B generation calls | 72B judge calls | When to run |
+1. **Core comparison:** B0 No Defense, B2 PIGuard Hard Filter, and Ours. This establishes whether the proposed method improves on both ordinary RAG and the existing PIGuard defense.
+2. **Ablation only after core success:** add B3 Risk-only Soft Rerank. This tests whether the relevance and context-conflict terms add value beyond injection risk.
+3. **Do not run B1 Keyword Filter unless required by the course marker.** It is a weak heuristic check, not a primary baseline.
+
+Use the following staged budget. The main test set is 300 attacked cases plus 20 clean cases. The clean cases measure normal-task utility and false positives; they do not contain injected text.
+
+| Stage | Cases and methods | 32B generation calls | 72B judge calls | Decision gate |
 |---|---:|---:|---:|---|
-| Manual integration check | 2 | 10 | 10 | Approved low-load moment only |
-| Pilot | 10 contexts x 10 attacks x 1 position = 100 | 500 | 500 | Low-load window; concurrency 1 |
-| Main EmailQA result | 50 contexts x 15 attack families x 3 positions = 2,250 | 11,250 | 11,250 | WebGen idle/approved dedicated window |
-| Full combinatorial sweep | 11,250 | 56,250 | 56,250 | Only if required and separately scheduled |
+| Manual integration check | 2 attacked cases x B0/B2/Ours | 6 | 6 | Endpoints and output format work |
+| Dev | 30 attacked cases x B0/B2/Ours; inspect a small benign set for over-defense | 90 + small benign check | 90 + small benign check | Ours improves ASR versus B0 and has acceptable utility versus B2 |
+| Small Test pilot | 100 attacked cases x B0/B2/Ours | 300 | 300 | Effect remains stable on held-out cases |
+| Main Test | 300 attacked + 20 clean cases x B0/B2/Ours | 960 | 960 | Main comparison result |
+| B3 ablation | Same 320 cases x B3 only | 320 | 320 | Run only after core result is credible |
 
 Cache PIGuard scores, embeddings, retrieval results, generated answers, and judge outputs by input hash. PIGuard runs locally and does not consume H200. Do not use `srun --overlap` to start another model or heavy batch while WebGen is active; endpoint calls themselves share the existing vLLM KV-cache and must be serial (`request_concurrency: 1`).
