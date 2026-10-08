@@ -4,6 +4,7 @@ __pycache__/
 .pytest_cache/
 .DS_Store
 outputs/
+configs/*_reuse.local.yaml
 data/raw/
 data/processed/
 third_party/BIPIA/

@@ -7,7 +7,10 @@ Course-project experiment scaffold for risk-aware retrieval against indirect pro
 - `third_party/BIPIA/`: attack benchmark (cloned reference repository)
 - `third_party/PIGuard/`: prompt-injection detector baseline (cloned reference repository)
 - `src/`: minimal retrieval, defense, reranking, generation, and evaluation components
-- `configs/h200.yaml`: H200 experiment defaults; models are downloaded only on the server
+- `configs/h200.yaml`: model-role defaults for H200 reuse
+- `configs/h200_reuse.example.yaml`: endpoint placeholders for existing H200 services
+- `docs/DECISIONS.md`: experiment decisions and current operational constraints
+- `docs/HANDOFF.md`: concise state for a later agent or collaborator
 - `scripts/run_smoke.py`: offline end-to-end sanity check
 
 ## Experiment matrix
@@ -31,9 +34,20 @@ pip install -r requirements.txt
 PYTHONPATH=. python scripts/run_smoke.py
 ```
 
-## H200 quick start
+## H200 model-reuse plan
 
-On the H200, clone this repository including `third_party/`, create the environment, then run:
+This project must **not deploy new LLMs on the H200**. It reuses approved, existing WebGen-hosted services when capacity is available:
+
+| Role | Existing service to reuse |
+|---|---|
+| Generator | `Qwen2.5-VL-32B-Instruct` |
+| Judge / ASR evaluator | `Qwen2.5-VL-72B-Instruct-AWQ` |
+| Embedding | `bge-m3` |
+| Injection guard | local `leolee99/PIGuard` on the 24 GB Mac |
+
+Before a formal run, the service owner must provide approved internal endpoint URLs and a low-load time window. The endpoint values are intentionally not stored in Git; copy `configs/h200_reuse.example.yaml` to a local ignored configuration file.
+
+On the H200, clone the project and set up only code dependencies:
 
 ```bash
 git clone <YOUR_GITHUB_REPOSITORY_URL> trustworthy-rag
@@ -47,7 +61,11 @@ pip install -e third_party/BIPIA
 PYTHONPATH=. python scripts/run_bipia.py --config configs/h200.yaml --method ours --task email
 ```
 
-The default H200 models are `meta-llama/Llama-3.1-8B-Instruct`, `BAAI/bge-base-en-v1.5`, and `leolee99/PIGuard`. Authenticate with Hugging Face before downloading gated Llama weights. `Qwen/Qwen2.5-14B-Instruct` is configured as an optional cross-model generator. The runner is intentionally a placeholder until the BIPIA task adapter is finalized; use `run_smoke.py` to validate the core pipeline now.
+The runner is intentionally a placeholder until the BIPIA task adapter is finalized; use `run_smoke.py` to validate the core pipeline now. A later cross-model transfer run may use a paper-standard general-purpose model, but it is a separate reported experiment, not a new deployment during the active WebGen run.
+
+### Lightweight H200 memory log
+
+`scripts/h200_gpu_monitor.sh` records only timestamp, GPU index, used/free memory, and utilization. It neither calls a model service nor changes Slurm. Run it only with the project owner's approval, then filter it to the GPUs allocated to the WebGen job.
 
 ## Reproducibility notes
 

@@ -1,0 +1,16 @@
+# Copy to configs/h200_reuse.local.yaml and fill only on the authorized machine.
+# This file intentionally contains no hostnames, ports, tokens, or credentials.
+services:
+  generator_qwen32b:
+    base_url: "REPLACE_WITH_APPROVED_INTERNAL_ENDPOINT"
+    model: "Qwen2.5-VL-32B-Instruct"
+  judge_qwen72b_awq:
+    base_url: "REPLACE_WITH_APPROVED_INTERNAL_ENDPOINT"
+    model: "Qwen2.5-VL-72B-Instruct-AWQ"
+  embedder_bge_m3:
+    base_url: "REPLACE_WITH_APPROVED_INTERNAL_ENDPOINT"
+    model: "bge-m3"
+runtime:
+  request_concurrency: 1
+  max_retries: 2
+  # Use formal batches only in an approved low-load window.
