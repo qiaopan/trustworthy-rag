@@ -55,7 +55,7 @@ Read `DECISIONS.md` before submitting H200 requests. The planned core experiment
 
 ## Current state (2026-10-09): main Test + B3 done
 
-- Branch `main-test-2026-10-09` (local, not pushed). Tag `main-test-frozen` = code used for the main Test run; B3 pre-registration committed before B3 ran. `outputs/test_main/provenance.json` pins commit + manifest sha256s.
+- Branch `main-test-2026-10-09` is pushed. Tag `main-test-frozen` = code used for the main Test run; B3 pre-registration committed before B3 ran. `outputs/test_main/provenance.json` pins commit + manifest sha256s.
 - Pipeline: whole-email retrieval (bge-m3, top-3; target = BIPIA attacked email + 4 entity-excluded distractors) -> sentence-chunk defences with window PIGuard risk -> Qwen2.5-VL-32B (BIPIA system template) -> official BIPIA evaluators (72B judge replaces GPT-4). See DECISIONS "Pre-registration" sections.
 - Runs completed (all serial, cached, no errors): Dev (train split, 30+30), Test pilot (100), main Test (300 attacked + 20 clean) for B0/B2/Ours, and B3 (risk-only) on the same 320 cases.
 - Commands: `scripts/run_dev.py` (runner), `scripts/compute_metrics.py`, `scripts/paired_compare.py` (exact McNemar), `scripts/selection_tradeoff.py` (selection-only sweep, no model calls), `scripts/audit_report.py` (human-audit sheet), `scripts/build_emailqa_test_manifests.py --check`.
@@ -63,11 +63,13 @@ Read `DECISIONS.md` before submitting H200 requests. The planned core experiment
 ### Where outputs live (gitignored)
 - `outputs/dev/` (Dev results, caches), `outputs/test_pilot/` (pilot), `outputs/test_main/`: `main_attack.jsonl`, `main_clean.jsonl`, `b3_main_300.jsonl`, `b3_clean_20.jsonl`, `metrics_main.json`, `metrics_with_b3.json`, `paired_main.json`, `paired_b3.json`, `selection_tradeoff.json`, `audit.md`, `provenance.json`, `cache/`.
 
-### Next options (none started)
-1. Human audit of `outputs/test_main/audit.md` (33 successes, 15 UNKNOWN samples).
-2. Second judge or second generator for robustness (separate, pre-registered experiment).
-3. Larger clean set to measure utility differences (n=20 is underpowered).
-4. Repeat with a generator less robust to injection to increase ASR headroom.
+### Current finalisation plan
+
+See `STATUS_AND_TODO.md` for the current checklist. The required remaining
+experiment is raw (per-chunk) PIGuard B2 on the frozen 300 attacked + 20 clean
+Main Test. The existing window-risk run is named B2-win. A disjoint 45-case
+follow-up Dev has completed under both BIPIA prompt templates; it is
+supplementary, not pooled with the primary Test result.
 
 ### Pointers (2026-10-09)
 - `docs/DECISION_LOG.md`: one table of every decision so far (problem, options, choice and reason, evidence, numbers, status). Read this first.
