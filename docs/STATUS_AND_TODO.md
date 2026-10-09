@@ -56,7 +56,7 @@ than the primary claim.
 ### Required before the final results table
 
 1. **Run raw B2 on the frozen Main Test**: 300 attacked + 20 clean, system
-   template, same fixed retrieval and judge.  Raw B2 means original PIGuard:
+   template, same fixed retrieval and judge.  Raw B2 means per-chunk PIGuard (threshold 0.5, no context window):
    score each chunk itself and hard-filter at 0.5.  This is the proper existing
    defense baseline.  The older window-risk result must be named **B2-win**,
    an ablation/our extension.

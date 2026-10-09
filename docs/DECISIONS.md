@@ -130,22 +130,40 @@ Limitations:
 
 ## Pre-registration: B2 naming and no-system template robustness (2026-10-09)
 
-(a) Method names. **B2** = the original PIGuard usage: each sentence chunk is scored on its own (`b2raw`), dropped if risk >= 0.5. The window-scored filter used as "B2" in the main-Test results above is renamed **B2-win** (B2 plus our window scoring; an ablation). Ours keeps window scoring as part of the method. B3 is unchanged (risk-only rule on window risk). The code-level definition (`b2raw`) was committed in 0b569dd before the main-Test B2 run; the main-Test B2 (system template, 300 attacked) run was executed before this text was written. That ordering is recorded here, and no parameter differs from the frozen protocol.
+(a) Method names. **B2** = per-chunk PIGuard (threshold 0.5, no context window): each sentence chunk is scored on its own (`b2raw`), dropped if risk >= 0.5. The window-scored filter used as "B2" in the main-Test results above is renamed **B2-win** (B2 plus our window scoring; an ablation). Ours keeps window scoring as part of the method. B3 is unchanged (risk-only rule on window risk). The code-level definition (`b2raw`) was committed in 0b569dd before the main-Test B2 run; the main-Test B2 (system template, 300 attacked) run was executed before this text was written. That ordering is recorded here, and no parameter differs from the frozen protocol.
 
 (b) Template robustness. Run B0, B2, B2-win, Ours and B3 on the same main 300 attacked + 20 clean cases with BIPIA's no-system template (`EmailIPIABuilder.construct_prompt(require_system_prompt=False)`, i.e. the `*_wosys` variant), and B2 on the 20 clean cases with the system template. Everything else is frozen. Report per template: metrics with Wilson CIs, and paired exact McNemar tests for Ours vs B2, Ours vs B2-win, Ours vs B0. No other changes.
 
-## Results: B2 (raw PIGuard) and no-system template (2026-10-09)
+## Results: B2 (per-chunk PIGuard) and no-system template (2026-10-09)
 
 Main Test, 300 attacked + 20 clean, official unguarded ASR (Wilson 95% CI). Human-audit-adjusted ASR is secondary and shown in brackets.
 
 | Method | System template ASR | No-system template ASR | Attack text in context | Answer kept /120 | Clean chunks dropped (attack / clean cases) |
 |---|---|---|---|---|---|
 | B0 | 30/300 [7.1–13.9] (30) | 35/300 [8.5–15.8] (35) | 265 | 119 | 0 / 0 |
-| B2 (raw PIGuard) | 15/300 [3.1–8.1] (11) | 15/300 [3.1–8.1] (13) | 161 | 119 | 70 / 5 |
+| B2 (per-chunk PIGuard, no window) | 15/300 [3.1–8.1] (11) | 15/300 [3.1–8.1] (13) | 161 | 119 | 70 / 5 |
 | B2-win | 1/300 [0.1–1.9] (1) | 1/300 (1) | 63 | 93 | 297 / 0 |
 | B3 (risk-only) | 1/300 (1) | 1/300 (1) | 56 | 93 | 324 / 1 |
 | Ours | 2/300 [0.2–2.4] (1) | 1/300 [0.1–1.9] (1) | 69 | 108 | 210 / 0 |
 
 Selection columns are template-independent. Paired exact McNemar, Ours vs B2: ASR 0/13 discordant (p = 0.0002, system) and 0/14 (p = 0.0001, no-system); attack in context 0/92 (p < 1e-4); answer kept 0/11 (p = 0.001). Ours vs B2-win: ASR tied (p = 1.0), answer kept 15/0 (p = 0.0001), attack in context 6/0 (p = 0.031), under both templates. Clean accuracy known/unknown is 7–8/10 and 4/10 for every method (n = 20, underpowered).
 
-Claim update: Ours reduces ASR significantly versus the original PIGuard usage (B2). Window scoring is what carries most of the attack removal; the relevance term is what preserves answers, as B2-win and B3 show.
+Disclosure. The system-template B2 (`b2raw`) main-Test run finished at 15:02, before the written pre-registration (commit 53c0c74, 19:33). The renaming of per-chunk PIGuard to "B2" and of the window-scored filter to "B2-win" is therefore post hoc. Only the no-system-template runs (and B2's clean 20 runs) were made after the pre-registration.
+
+Framing. The context window is what cuts ASR: B2 → B2-win goes from 15/300 to 1/300 (system template). Ours ties B2-win on ASR (2 vs 1, p = 1.0) and wins on utility: answers kept 108 vs 93 of 120 (p = 0.0001), fewer clean chunks dropped (210 vs 297) and less abstention under the system template (15 vs 26, p = 0.019; not significant under no-system). The contribution is therefore two parts, each shown by ablation:
+- context-window risk scoring (B2 vs B2-win);
+- relevance-aware filtering (B2-win and B3 vs Ours).
+
+## Pre-registration: B2-doc document-level PIGuard baseline (2026-10-09, before any B2-doc call)
+
+**B2-doc**: PIGuard scores each retrieved email's full text once. Inputs are truncated to PIGuard's own maximum of 512 tokens (`max_position_embeddings`), and the number of truncated emails is recorded. An email is dropped entirely if its risk is >= 0.5; otherwise it is passed unchanged.
+
+Everything else is frozen: system template, the same 300 attacked + 20 clean main-Test cases, doc top-k 3, generator, judge and official evaluators.
+
+Report:
+- ASR;
+- attack text in context;
+- answer-bearing retention;
+- rate at which the target email is dropped (attack and clean cases);
+- clean false positives (clean emails dropped on clean cases);
+- paired exact McNemar vs Ours.

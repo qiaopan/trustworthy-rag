@@ -108,7 +108,7 @@ def main() -> None:
     cases = load_cases(a.manifest, include_clean=a.include_clean or a.clean_only, attacked=not a.clean_only)
     if a.dump_pool_texts:
         a.dump_pool_texts.parent.mkdir(parents=True, exist_ok=True)
-        texts = scoring_texts(cases)
+        texts = scoring_texts(cases, include_docs=True)
         a.dump_pool_texts.write_text("".join(json.dumps({"text": t}) + "\n" for t in texts))
         print(f"Wrote {len(texts)} unique passages to {a.dump_pool_texts}")
         return
@@ -116,7 +116,7 @@ def main() -> None:
         sys.exit("Real generator/judge runs require --embedder endpoint --risk piguard")
     cache_dir = a.out / "cache"
     scorer = FakeRiskScorer() if a.risk == "fake" else CachedRiskScorer(cache_dir / "piguard.jsonl")
-    if a.risk == "piguard" and (missing := scorer.missing(scoring_texts(cases))):
+    if a.risk == "piguard" and (missing := scorer.missing(scoring_texts(cases, include_docs="b2doc" in a.methods))):
         sys.exit(f"{len(missing)} passages lack PIGuard scores: run --dump-pool-texts then scripts/score_piguard.py")
     embedder = HashingEmbedder() if a.embedder == "fake" else CachedEmbedder.from_config(JsonlCache(cache_dir / "embeddings.jsonl"))
     llm_cache = JsonlCache(cache_dir / ("fake_llm_calls.jsonl" if a.fake_client else "llm_calls.jsonl"))

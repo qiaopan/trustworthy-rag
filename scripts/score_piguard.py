@@ -37,8 +37,10 @@ def main() -> None:
     args.cache.parent.mkdir(parents=True, exist_ok=True)
     with args.cache.open("a") as out:
         for text in todo:
+            n_tokens = len(scorer.classifier.tokenizer(text)["input_ids"])
             out.write(json.dumps({"text_sha": hashlib.sha256(text.encode()).hexdigest(), "risk": scorer.score(text),
-                                  "model": "leolee99/PIGuard"}) + "\n")
+                                  "model": "leolee99/PIGuard", "n_tokens": n_tokens,
+                                  "truncated": n_tokens > scorer.MAX_TOKENS}) + "\n")
     print(f"Scored {len(todo)} new passages -> {args.cache}")
 
 

@@ -26,8 +26,10 @@ class PIGuardRiskScorer:
             "text-classification", model=model, tokenizer=tokenizer, device=device, truncation=True, top_k=None
         )
 
+    MAX_TOKENS = 512  # PIGuard (DeBERTa-v3) max_position_embeddings; longer inputs are truncated
+
     def score(self, text: str) -> float:
-        labels = self.classifier(text)[0]
+        labels = self.classifier(text, truncation=True, max_length=self.MAX_TOKENS)[0]
         for item in labels:
             if "inject" in item["label"].lower() and "not" not in item["label"].lower():
                 return float(item["score"])

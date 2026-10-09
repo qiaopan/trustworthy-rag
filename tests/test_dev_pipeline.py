@@ -326,3 +326,13 @@ def test_b3_is_explicit_risk_only_alias(cases):
     b3 = select_chunks(case, docs, scorer, "b3", cfg, embedder=HashingEmbedder())
     explicit = select_chunks(case, docs, scorer, "ours", OursConfig(0.0, 0.8, 0.0, -0.2), embedder=HashingEmbedder())
     assert [row.kept for row in b3] == [row.kept for row in explicit]
+
+
+def test_b2doc_drops_whole_email(cases):
+    case = next(c for c in cases if c.label == "attack")
+    docs = retrieve_docs(case, TargetFirst(case), k=2)
+    risky = DictRisk(case)  # any text containing attack chunk text -> 0.99, so the target email is flagged
+    rows = select_chunks(case, docs, risky, "b2doc")
+    target = next(d.did for d in case.docs if d.kind == "target")
+    assert all(not r.kept for r in rows if r.doc_id == target)
+    assert all(r.kept for r in rows if r.doc_id != target)

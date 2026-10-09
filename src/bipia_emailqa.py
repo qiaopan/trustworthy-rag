@@ -231,7 +231,8 @@ def risk_windows(doc: Doc) -> list[str]:
     return ["\n".join(texts[max(0, i - 1): i + 2]) for i in range(len(texts))]
 
 
-def scoring_texts(cases: list[Case]) -> list[str]:
-    """Every text PIGuard must score: raw chunks and their windows."""
+def scoring_texts(cases: list[Case], include_docs: bool = False) -> list[str]:
+    """Every text PIGuard must score: raw chunks and their windows (and whole emails for B2-doc)."""
     return list(dict.fromkeys([c.text for case in cases for c in case.pool]
-                              + [w for case in cases for d in case.docs for w in risk_windows(d)]))
+                              + [w for case in cases for d in case.docs for w in risk_windows(d)]
+                              + ([d.text for case in cases for d in case.docs] if include_docs else [])))

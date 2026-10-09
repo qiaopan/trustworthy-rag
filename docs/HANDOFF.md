@@ -77,7 +77,7 @@ supplementary, not pooled with the primary Test result.
 - Exploratory Dev chunk-size sweep: `scripts/sweep_granularity.py` → `outputs/dev/sweep_granularity_endpoint.jsonl`. The frozen Test protocol is unchanged.
 
 ### 2026-10-09 (later): raw-PIGuard B2 and no-system template
-- Final tables: DECISIONS "Results: B2 (raw PIGuard) and no-system template"; DECISION_LOG rows 23–26.
+- Final tables: DECISIONS "Results: B2 (per-chunk PIGuard) and no-system template"; DECISION_LOG rows 23–26.
 - Outputs (`outputs/test_main/`):
   - System template: `main_attack.jsonl`, `main_clean.jsonl` (B0, B2-win, Ours); `b3_*.jsonl`; `b2raw_main_300.jsonl` (rebuilt from the cache), `b2raw_clean_20.jsonl`.
   - No-system template: `wosys_main_300.jsonl`, `wosys_clean_20.jsonl`.

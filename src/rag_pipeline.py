@@ -5,7 +5,8 @@ chunk + next chunk of the same email) by default.  B0 passes retrieved docs unch
 chunks with PIGuard risk >= threshold; Ours keeps a chunk when
 ``alpha*rel - beta*risk - gamma*conflict >= keep`` (rel = cosine(question, chunk),
 conflict = reranker.context_conflict), optionally with a hard risk cap.
-Naming (pre-registered 2026-10-09): method "b2raw" = B2 (per-chunk PIGuard risk >= 0.5);
+Naming: method "b2raw" = B2 (per-chunk PIGuard, threshold 0.5, no context window); "b2doc" = B2-doc
+(PIGuard on each retrieved email's full text, truncated to PIGuard's max length; email dropped if >= 0.5);
 method "b2" with window risk = B2-win (our window scoring added to B2, an ablation).  Kept
 chunks stay in document order; documents stay in retrieval-rank order.
 """
@@ -86,7 +87,10 @@ def select_chunks(case: Case, docs: list[tuple[Doc, float]], scorer, method: str
 
     Chunk risk = PIGuard score of the chunk's window (``risk_mode='window'``) or of the chunk alone."""
     chunks = [(doc.did, c) for doc, _ in docs for c in doc.chunks]
-    if method == "b2raw":  # original PIGuard usage: each chunk scored on its own (reported as "B2")
+    if method == "b2doc":  # document-level PIGuard: whole retrieved email scored once, email dropped if >= threshold
+        doc_risk = {doc.did: scorer.score(doc.text) for doc, _ in docs}
+        return [ChunkRow(c, did, doc_risk[did], None, doc_risk[did] < b2_threshold) for did, c in chunks]
+    if method == "b2raw":  # per-chunk PIGuard, no context window (reported as "B2")
         method, risk_mode = "b2", "chunk"
     elif method == "b3":  # risk-only ablation: retain the configured risk rule, no relevance/conflict terms
         method = "ours"
