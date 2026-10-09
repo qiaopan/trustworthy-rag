@@ -41,6 +41,11 @@ PYTHONPATH=. python scripts/run_smoke.py
 
 PIGuard is the only model that needs to be downloaded locally. It is a small 0.2B text classifier; no local generator is required.
 
+The reference local machine is an **Apple M5 Mac with 24 GB unified memory and
+1 TB internal storage**. See [`docs/LOCAL_MACHINE.md`](docs/LOCAL_MACHINE.md)
+for the workload boundary: PIGuard and offline reranking run locally, while
+the large generator and judge remain on approved existing H200 services.
+
 ```bash
 python3 -m venv .venv-piguard
 .venv-piguard/bin/pip install torch transformers

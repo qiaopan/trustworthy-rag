@@ -9,7 +9,7 @@ The project reuses existing H200 services rather than deploying any additional L
 | Generator | Reuse `Qwen2.5-VL-32B-Instruct` | General-purpose model; do not use the WebGen-finetuned 32B model as the primary RAG generator. |
 | Judge | Reuse `Qwen2.5-VL-72B-Instruct-AWQ` | Separates judging from 32B generation and reduces same-model self-evaluation bias. |
 | Retrieval embedding | Reuse `bge-m3` | Existing dense embedding service; replaces `BAAI/bge-base-en-v1.5`. |
-| Injection scoring | Run `leolee99/PIGuard` on the project owner's 24 GB Apple-Silicon Mac | PIGuard is a 0.2B text classifier and does not require H200. |
+| Injection scoring | Run `leolee99/PIGuard` on the project owner's Apple M5 Mac (24 GB unified memory, 1 TB storage) | PIGuard is a 0.2B text classifier and does not require H200. |
 | Reranking | Local Python | The proposed relevance-risk-context-conflict score does not require another model. |
 
 ## Constraints
