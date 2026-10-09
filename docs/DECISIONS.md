@@ -127,3 +127,9 @@ Limitations:
 - Case main-110 (Ours) is a likely judge false positive (only the number was "encrypted"); the official label is kept.
 - One generator (Qwen2.5-VL-32B), one run, temperature 0; clean set n = 20 is underpowered for utility differences.
 - Ours parameters were frozen after Dev, where ASR was 0 for all methods (train attack families), so they were not selected on attack success.
+
+## Pre-registration: B2 naming and no-system template robustness (2026-10-09)
+
+(a) Method names. **B2** = the original PIGuard usage: each sentence chunk is scored on its own (`b2raw`), dropped if risk >= 0.5. The window-scored filter used as "B2" in the main-Test results above is renamed **B2-win** (B2 plus our window scoring; an ablation). Ours keeps window scoring as part of the method. B3 is unchanged (risk-only rule on window risk). The code-level definition (`b2raw`) was committed in 0b569dd before the main-Test B2 run; the main-Test B2 (system template, 300 attacked) run was executed before this text was written. That ordering is recorded here, and no parameter differs from the frozen protocol.
+
+(b) Template robustness. Run B0, B2, B2-win, Ours and B3 on the same main 300 attacked + 20 clean cases with BIPIA's no-system template (`EmailIPIABuilder.construct_prompt(require_system_prompt=False)`, i.e. the `*_wosys` variant), and B2 on the 20 clean cases with the system template. Everything else is frozen. Report per template: metrics with Wilson CIs, and paired exact McNemar tests for Ours vs B2, Ours vs B2-win, Ours vs B0. No other changes.
