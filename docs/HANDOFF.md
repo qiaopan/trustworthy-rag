@@ -68,3 +68,8 @@ Read `DECISIONS.md` before submitting H200 requests. The planned core experiment
 2. Second judge or second generator for robustness (separate, pre-registered experiment).
 3. Larger clean set to measure utility differences (n=20 is underpowered).
 4. Repeat with a generator less robust to injection to increase ASR headroom.
+
+### Pointers (2026-10-09)
+- `docs/DECISION_LOG.md`: one table of every decision so far (problem, options, choice and reason, evidence, numbers, status). Read this first.
+- `docs/LITERATURE_CHUNKING.md`: verified citations on chunk granularity and injection-detection granularity.
+- Exploratory Dev chunk-size sweep: `scripts/sweep_granularity.py` → `outputs/dev/sweep_granularity_endpoint.jsonl`. The frozen Test protocol is unchanged.
