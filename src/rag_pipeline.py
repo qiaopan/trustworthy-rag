@@ -4,7 +4,9 @@ No generator is involved here.  Chunk risk is PIGuard on a window (previous +
 chunk + next chunk of the same email) by default.  B0 passes retrieved docs unchanged; B2 drops
 chunks with PIGuard risk >= threshold; Ours keeps a chunk when
 ``alpha*rel - beta*risk - gamma*conflict >= keep`` (rel = cosine(question, chunk),
-conflict = reranker.context_conflict), optionally with a hard risk cap.  Kept
+conflict = reranker.context_conflict), optionally with a hard risk cap.
+Naming (pre-registered 2026-10-09): method "b2raw" = B2 (per-chunk PIGuard risk >= 0.5);
+method "b2" with window risk = B2-win (our window scoring added to B2, an ablation).  Kept
 chunks stay in document order; documents stay in retrieval-rank order.
 """
 from __future__ import annotations
@@ -84,6 +86,8 @@ def select_chunks(case: Case, docs: list[tuple[Doc, float]], scorer, method: str
 
     Chunk risk = PIGuard score of the chunk's window (``risk_mode='window'``) or of the chunk alone."""
     chunks = [(doc.did, c) for doc, _ in docs for c in doc.chunks]
+    if method == "b2raw":  # original PIGuard usage: each chunk scored on its own (reported as "B2")
+        method, risk_mode = "b2", "chunk"
     if risk_mode == "window":
         risk_inputs = [w for doc, _ in docs for w in risk_windows(doc)]
     elif risk_mode == "chunk":

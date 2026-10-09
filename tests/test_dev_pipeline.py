@@ -303,3 +303,16 @@ def test_mcnemar_exact():
     assert mcnemar_exact(0, 0) == 1.0
     assert abs(mcnemar_exact(0, 5) - 0.0625) < 1e-12
     assert abs(mcnemar_exact(2, 8) - 0.109375) < 1e-9
+
+
+def test_b2raw_uses_per_chunk_risk(cases):
+    case = next(c for c in cases if c.label == "attack")
+    docs = retrieve_docs(case, TargetFirst(case), k=1)
+
+    class WindowOnly:
+        def score(self, text):
+            return 0.99 if "\n" in text and case.attack.split()[0] in text else 0.0
+    raw = select_chunks(case, docs, WindowOnly(), "b2raw")  # default risk_mode is window, b2raw must override
+    win = select_chunks(case, docs, WindowOnly(), "b2")
+    assert all(r.kept for r in raw)
+    assert sum(not r.kept for r in win) >= sum(not r.kept for r in raw)
