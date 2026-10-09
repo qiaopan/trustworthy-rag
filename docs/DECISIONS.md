@@ -184,3 +184,16 @@ Report:
 - PIGuard truncation: 0 emails exceeded 512 tokens (longest 248).
 - Paired exact McNemar, Ours vs B2-doc: ASR 2/0 discordant (p = 0.5); attack in context 54/0 (p < 1e-4); answer kept 100/0 (p < 1e-4); abstention 6/44 (p < 1e-4).
 - Reading: whole-email PIGuard flags nearly every attacked email (no clean false positives here), so it blocks the attack only by discarding the email that carries the answer. Ours ties it on ASR while keeping 108/120 answers.
+
+## Pre-registration: clean set expanded to all 50 EmailQA test contexts (2026-10-09, before any call on the new cases)
+
+**Purpose.** Increase the power of the utility and false-positive measurements; 20 clean cases could not separate the methods.
+
+**New cases.** `data/manifests/emailqa_test_clean_extra_30.jsonl` (built by `scripts/build_clean_extra_manifest.py --check`) holds the 30 BIPIA EmailQA test contexts not in `emailqa_test_clean_20.jsonl`. With the existing 20, all 50 test contexts are covered: 24 known-answer and 26 unknown-answer, all unpoisoned.
+
+**Runs.** B0, B2 (per-chunk PIGuard), B2-doc, B2-win, B3 and Ours on the 30 new cases. System template, frozen settings, serial. No parameter changes.
+
+**Reporting (n=50).**
+- Clean accuracy with Wilson CIs, split into known-answer and unknown-answer.
+- Clean false positives: clean chunks and emails dropped.
+- Paired exact McNemar, Ours vs each method.

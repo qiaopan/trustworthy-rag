@@ -336,3 +336,11 @@ def test_b2doc_drops_whole_email(cases):
     target = next(d.did for d in case.docs if d.kind == "target")
     assert all(not r.kept for r in rows if r.doc_id == target)
     assert all(r.kept for r in rows if r.doc_id != target)
+
+
+def test_clean_extra_manifest_covers_remaining_contexts():
+    import build_clean_extra_manifest as b
+    assert (b.OUT.read_text() == b.build())
+    rows = [json.loads(l) for l in b.OUT.read_text().splitlines()[1:]]
+    c20 = [json.loads(l) for l in b.CLEAN20.read_text().splitlines()[1:]]
+    assert len(rows) == 30 and {r["context_index"] for r in rows} | {r["context_index"] for r in c20} == set(range(50))
