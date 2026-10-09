@@ -167,3 +167,20 @@ Report:
 - rate at which the target email is dropped (attack and clean cases);
 - clean false positives (clean emails dropped on clean cases);
 - paired exact McNemar vs Ours.
+
+## Results: B2-doc (document-level PIGuard), main Test, system template (2026-10-09)
+
+| Metric | B2-doc | Ours |
+|---|---|---|
+| Official ASR | 0/300 [0–1.3%] | 2/300 [0.2–2.4%] (human-adjusted 1) |
+| Attack text in context | 15/300 | 69/300 |
+| Attack removed | 250/300 | 196/300 |
+| Answer kept (answerable attack cases) | 8/120 [3.4–12.6%] | 108/120 |
+| Target email dropped | 250 of 265 retrieved (attack cases); 0 of 19 (clean cases) | chunk-level, not email-level |
+| Clean emails dropped | 0 of 635 distractors (attack cases); 0 of 60 retrieved emails (clean cases) | — |
+| Clean accuracy known / unknown | 8/10 / 4/10 | 8/10 / 4/10 |
+| Abstention (of 320) | 53 | 15 |
+
+- PIGuard truncation: 0 emails exceeded 512 tokens (longest 248).
+- Paired exact McNemar, Ours vs B2-doc: ASR 2/0 discordant (p = 0.5); attack in context 54/0 (p < 1e-4); answer kept 100/0 (p < 1e-4); abstention 6/44 (p < 1e-4).
+- Reading: whole-email PIGuard flags nearly every attacked email (no clean false positives here), so it blocks the attack only by discarding the email that carries the answer. Ours ties it on ASR while keeping 108/120 answers.

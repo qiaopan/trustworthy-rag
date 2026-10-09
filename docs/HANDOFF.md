@@ -85,3 +85,4 @@ supplementary, not pooled with the primary Test result.
   - Audit sheets: `audit.md`, `audit_wosys.md`.
 - Human-audit overrides: `data/human_audit_labels.json`; pass it to `scripts/compute_metrics.py --human-labels` for the secondary adjusted ASR.
 - Method keys in result files: `b2raw` = B2; `b2` = B2-win; `ours_a0…` and `b3` = B3.
+- B2-doc (document-level PIGuard): `outputs/test_main/b2doc_{main_300,clean_20}.jsonl`, `metrics_b2doc.json`, `paired_b2doc.json`; DECISIONS "Results: B2-doc"; DECISION_LOG row 27.
