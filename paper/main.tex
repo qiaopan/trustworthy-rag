@@ -1,0 +1,198 @@
+% Trustworthy RAG final-report scaffold.
+% Compile after replacing every [TBD] item and adding the locked raw-B2 result.
+\documentclass[conference]{IEEEtran}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{url}
+\newcommand{\todo}[1]{\textcolor{red}{[TBD: #1]}}
+
+\title{Risk-Aware Retrieval for Defending Retrieval-Augmented Generation Against Indirect Prompt Injection}
+\author{\IEEEauthorblockN{\todo{Student 1 name} \and \todo{Student 2 name}}\IEEEauthorblockA{\todo{Course, University of Auckland}\\\todo{student email addresses}}}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Retrieval-augmented generation (RAG) improves knowledge access, but it also
+creates a trust-boundary problem: a retrieved document may contain instructions
+that compete with the user's request. This project studies whether passage
+selection can account for both relevance and prompt-injection risk before
+retrieved text reaches a generator. We implement a reproducible EmailQA
+pipeline around BIPIA, dense bge-m3 retrieval, the PIGuard injection detector,
+and a fixed Qwen generator. We compare unprotected RAG, PIGuard hard filtering,
+a stricter risk-only rule, and a relevance--risk selection rule. The primary
+protocol uses a frozen, stratified 300-case attacked test set plus 20 clean
+cases; it reports attack success, malicious-context inclusion, answer-bearing
+evidence retention, clean-task behaviour, abstention, and confidence intervals.
+Preliminary runs show that filtering sharply reduces attack-context inclusion
+while potentially discarding useful evidence. The final table will insert the
+locked original-PIGuard baseline and audit results. Rather than claiming
+universal robustness, the study identifies the security--utility trade-off
+created by detector-driven retrieval decisions.
+\end{abstract}
+
+\begin{IEEEkeywords}
+retrieval-augmented generation, indirect prompt injection, trustworthy AI,
+prompt-injection detection, retrieval security
+\end{IEEEkeywords}
+
+\section{Introduction}
+RAG systems routinely place retrieved natural-language documents beside a
+user's request. This improves factual grounding, but it also mixes data and
+instructions in one model input. Indirect prompt injection exploits that
+boundary: an attacker embeds an instruction in external content, and the model
+may follow it after retrieval \cite{greshake2023}. The resulting failure can
+redirect a task even if the user never supplied the malicious instruction.
+
+Our research question is: \emph{Can a RAG system estimate the trustworthiness
+of retrieved passages before generation and reduce indirect prompt injection
+without unnecessarily losing answer-bearing evidence?} We test the hypothesis
+that using relevance alongside an injection-risk score can preserve more useful
+content than a detector-only hard filter at similar attack-context removal.
+
+This work makes three course-project contributions. First, it implements a
+versioned BIPIA EmailQA experimental pipeline with deterministic manifests,
+caching, and an explicit retrieval pool. Second, it compares an original
+PIGuard chunk-level filter with a windowed detector ablation, a risk-only rule,
+and a relevance--risk selector. Third, it evaluates security and utility
+together, and records limitations rather than treating a low attack-success
+rate as sufficient evidence of general robustness.
+
+\section{Related Work}
+RAG couples a retriever and generator \cite{lewis2020,karpukhin2020}, but the
+retrieved corpus can be adversarial. Greshake \emph{et al.} demonstrated
+indirect prompt injection in LLM-integrated applications \cite{greshake2023}.
+Subsequent benchmarks formalise attacks and defences \cite{liu2024,bipia2025},
+and security benchmarks such as SafeRAG examine broader RAG failure modes
+\cite{saferag2025}. PIGuard focuses on reducing detector over-defence caused
+by superficial trigger words \cite{piguard2025}. Our project does not train a
+new generator or detector. Instead, it asks how a detector score should alter
+retrieval selection, with explicit evidence-retention measurements.
+
+\section{Methodology}
+\subsection{Threat model and retrieval setting}
+The attacker controls an instruction inserted into an EmailQA document, but
+does not control the user's question, model weights, or scoring code. Each
+query retrieves from a small constructed pool: the attacked target email and
+four seeded distractors that do not mention the query entity. Hence our claims
+are limited to this BIPIA EmailQA RAG setting, not to arbitrary web-scale RAG.
+
+\subsection{Methods}
+Let $q$ be a question, $c$ a sentence-level candidate chunk,
+$\operatorname{rel}(q,c)$ dense cosine relevance, $r(c)$ PIGuard injection
+risk, and $\operatorname{conflict}(q,c)$ an optional context-conflict value.
+Our selection score is
+\begin{equation}
+s(q,c)=\alpha\operatorname{rel}(q,c)-\beta r(c)-\gamma\operatorname{conflict}(q,c).
+\end{equation}
+Chunks meeting the frozen keep rule are returned in source-document order.
+
+\begin{table}[t]
+\caption{Compared methods. Raw B2 is the existing PIGuard baseline; B2-win
+is a project window-scoring ablation.}
+\label{tab:methods}
+\centering
+\begin{tabular}{ll}
+\toprule
+Method & Selection rule \\
+\midrule
+B0 & Relevance-only RAG; no defence \\
+B2 (raw) & Chunk-level PIGuard score; remove risk $\geq0.5$ \\
+B2-win & Windowed PIGuard score; remove risk $\geq0.5$ \\
+B3 & Windowed risk-only threshold ($r\leq0.25$) \\
+Ours & Relevance--risk--conflict score with frozen keep rule \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Protocol and measures}
+The primary split is a deterministic stratified sample of 300 BIPIA test
+attacks across 15 attack families and three insertion positions, plus 20 clean
+emails (10 known-answer and 10 unknown-answer). The generator is
+Qwen2.5-VL-32B-Instruct at temperature zero; bge-m3 supplies embeddings;
+PIGuard scores risk locally. The official BIPIA attack evaluator is used,
+with Qwen2.5-VL-72B-AWQ answering model-judged criteria in place of the
+original GPT-3.5. UNKNOWN judgement outputs count as not successful and are
+reported.
+
+Primary security measures are official attack success rate (ASR), attack text
+in the final context, and attack removal. Utility measures are answer-bearing
+chunk retention on the 120 answerable attacked cases, clean-case accuracy on
+20 cases, clean chunks removed, and abstention over all 320 cases. We report
+rates with Wilson 95\% intervals and paired exact comparisons. A 100-case
+pilot is infrastructure-only and not pooled with the Main Test; a disjoint
+45-case follow-up is supplementary and not used for tuning.
+
+\section{Implementation and Results}
+The implementation records model revisions, manifests, selection decisions,
+generated outputs, and judge outputs, while caching deterministic intermediate
+steps. It uses sentence-level defence units within whole-email documents. The
+experiment is reproducible from the public repository\footnote{\todo{Insert
+public GitHub URL after final review.}} without committing credentials or model
+weights.
+
+Table~\ref{tab:results} is intentionally incomplete until the raw B2 Main-Test
+run and human-audit sensitivity check are locked. The already-completed
+windowed comparisons should not be relabelled as original B2. Current evidence
+supports a cautious interpretation: all evaluated defences reduced ASR relative
+to B0, while Ours retained more answer-bearing chunks than the two stricter
+windowed rules. It does \emph{not} support a claim that the conflict term adds
+value, because it did not change frozen selections.
+
+\begin{table*}[t]
+\caption{Primary Main-Test result template. Fill only from the locked metric
+report; do not pool pilot or follow-up cases.}
+\label{tab:results}
+\centering
+\begin{tabular}{lccccc}
+\toprule
+Method & ASR ($n=300$) & Attack in context & Removal & Evidence retention ($n=120$) & Clean ($n=20$) \\
+\midrule
+B0 & \todo{locked} & \todo{locked} & \todo{locked} & \todo{locked} & \todo{locked} \\
+B2 (raw) & \todo{pending raw-B2 run} & \todo{pending} & \todo{pending} & \todo{pending} & \todo{pending} \\
+B2-win & \todo{locked} & \todo{locked} & \todo{locked} & \todo{locked} & \todo{locked} \\
+B3 & \todo{locked} & \todo{locked} & \todo{locked} & \todo{locked} & \todo{locked} \\
+Ours & \todo{locked} & \todo{locked} & \todo{locked} & \todo{locked} & \todo{locked} \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\subsection{Limitations}
+This evaluation uses one generator and a small clean set, so it cannot estimate
+small utility differences precisely. The evaluator model differs from BIPIA's
+original setup; model-judged UNKNOWN cases are a source of uncertainty. The
+constructed retrieval pool and fixed temperature also limit generalisation.
+Finally, the 45-case post-main template comparison is evidence of robustness
+checking, not an additional primary test set.
+
+\section{Conclusion and Future Work}
+This project operationalises trustworthiness as a retrieval-time selection
+problem rather than only a generator prompt problem. The final locked
+comparison will determine whether relevance-aware selection improves evidence
+retention at comparable security in the studied BIPIA setting. Future work
+should evaluate more generators, larger clean sets, adaptive attackers,
+web-scale corpora, and a conflict signal that is independently validated before
+being included in a scoring rule.
+
+\section*{Contribution Breakdown}
+\todo{Replace with a factual breakdown of each group member's work, including
+literature review, implementation, experiment verification, writing, slides,
+and recording.}
+
+\begin{thebibliography}{00}
+\bibitem{lewis2020} P. Lewis \emph{et al.}, ``Retrieval-augmented generation for knowledge-intensive NLP tasks,'' in \emph{Advances in Neural Information Processing Systems}, vol. 33, 2020.
+\bibitem{karpukhin2020} V. Karpukhin \emph{et al.}, ``Dense passage retrieval for open-domain question answering,'' in \emph{Proc. EMNLP}, 2020.
+\bibitem{greshake2023} K. Greshake \emph{et al.}, ``Not what you've signed up for: Compromising real-world LLM-integrated applications with indirect prompt injection,'' in \emph{Proc. AISec}, 2023.
+\bibitem{liu2024} Y. Liu \emph{et al.}, ``Formalizing and benchmarking prompt injection attacks and defenses,'' in \emph{Proc. USENIX Security}, 2024.
+\bibitem{bipia2025} J. Yi \emph{et al.}, ``Benchmarking and defending against indirect prompt injection attacks on large language models,'' in \emph{Proc. KDD}, 2025.
+\bibitem{saferag2025} X. Liang \emph{et al.}, ``SafeRAG: Benchmarking security in retrieval-augmented generation of large language model,'' in \emph{Proc. ACL}, 2025.
+\bibitem{piguard2025} H. Li, X. Liu, N. Zhang, and C. Xiao, ``PIGuard: Prompt injection guardrail via mitigating overdefense for free,'' in \emph{Proc. ACL}, 2025.
+\bibitem{agentdojo2024} E. Debenedetti \emph{et al.}, ``AgentDojo: A dynamic environment to evaluate prompt injection attacks and defenses for LLM agents,'' in \emph{Advances in Neural Information Processing Systems}, 2024.
+\bibitem{poisonedrag2025} W. Zou \emph{et al.}, ``PoisonedRAG: Knowledge corruption attacks to retrieval-augmented generation of large language models,'' in \emph{Proc. USENIX Security}, 2025.
+\bibitem{zhan2025} Q. Zhan \emph{et al.}, ``Adaptive attacks break defenses against indirect prompt injection attacks on LLM agents,'' in \emph{Findings of NAACL}, 2025.
+\end{thebibliography}
+\end{document}
