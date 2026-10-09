@@ -86,3 +86,5 @@ supplementary, not pooled with the primary Test result.
 - Human-audit overrides: `data/human_audit_labels.json`; pass it to `scripts/compute_metrics.py --human-labels` for the secondary adjusted ASR.
 - Method keys in result files: `b2raw` = B2; `b2` = B2-win; `ours_a0…` and `b3` = B3.
 - B2-doc (document-level PIGuard): `outputs/test_main/b2doc_{main_300,clean_20}.jsonl`, `metrics_b2doc.json`, `paired_b2doc.json`; DECISIONS "Results: B2-doc"; DECISION_LOG row 27.
+- Clean n=50 and B1: DECISIONS "Results: clean set n=50 and B1"; DECISION_LOG rows 28–29.
+- Paper: `paper/main.tex`. Figures come from `scripts/make_paper_figs.py` → `paper/figs/`. No LaTeX is installed on this machine; compile on Overleaf or another TeX installation.

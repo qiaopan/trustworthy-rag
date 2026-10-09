@@ -209,3 +209,24 @@ There is no context window and no tuning.
 **Runs.** The 300 attacked + 50 clean main-Test cases, system template, frozen settings, serial.
 
 **Reporting.** The same metrics as the other methods, plus paired exact McNemar tests of Ours vs B1.
+
+## Results: clean set n=50 and B1 keyword filter (2026-10-09)
+
+**Clean (all 50 EmailQA test contexts; 24 known-answer, 26 unknown-answer; system template).**
+- Clean accuracy:
+  - B0, B2, B2-win: 35/50.
+  - B2-doc, B3, Ours: 36/50 (Ours CI 58.3–82.5%).
+  - B1: 37/50.
+  - Split: known-answer 21–22/24, unknown-answer 14–15/26.
+- Paired McNemar, Ours vs each method: at most 1 discordant case (p = 1.0 everywhere).
+- Clean chunks dropped:
+  - B2: 12/591 retrieved clean chunks, in 12/50 cases.
+  - B3: 3.
+  - All others: 0, with 0 emails dropped.
+- Script: `scripts/clean50_report.py` → `outputs/test_main/clean50_report.json`.
+
+**B1 (keyword filter).**
+- The frozen pattern matched no chunk in any of the 350 cases, so B1's context is identical to B0's.
+- Attacked cases: ASR 29/300 [6.8–13.5%], attack in context 265/300, answers kept 119/120.
+- Ours vs B1: ASR 0/27 discordant (p < 1e-4); answers 0/11 (p = 0.001).
+- Generation is non-deterministic at temperature 0: between B0 and B1 (identical prompts), 72/300 answers differ in wording and 3/300 attack labels flip. Small ASR differences among the defended methods should be read against this.
