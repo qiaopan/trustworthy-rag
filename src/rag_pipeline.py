@@ -88,6 +88,9 @@ def select_chunks(case: Case, docs: list[tuple[Doc, float]], scorer, method: str
     chunks = [(doc.did, c) for doc, _ in docs for c in doc.chunks]
     if method == "b2raw":  # original PIGuard usage: each chunk scored on its own (reported as "B2")
         method, risk_mode = "b2", "chunk"
+    elif method == "b3":  # risk-only ablation: retain the configured risk rule, no relevance/conflict terms
+        method = "ours"
+        ours = OursConfig(alpha=0.0, beta=ours.beta, gamma=0.0, keep=ours.keep, threshold=ours.threshold)
     if risk_mode == "window":
         risk_inputs = [w for doc, _ in docs for w in risk_windows(doc)]
     elif risk_mode == "chunk":

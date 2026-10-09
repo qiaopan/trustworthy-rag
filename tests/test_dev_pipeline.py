@@ -316,3 +316,13 @@ def test_b2raw_uses_per_chunk_risk(cases):
     win = select_chunks(case, docs, WindowOnly(), "b2")
     assert all(r.kept for r in raw)
     assert sum(not r.kept for r in win) >= sum(not r.kept for r in raw)
+
+
+def test_b3_is_explicit_risk_only_alias(cases):
+    case = next(c for c in cases if c.label == "attack")
+    docs = retrieve_docs(case, TargetFirst(case), k=1)
+    scorer = DictRisk(case)
+    cfg = OursConfig(alpha=1.0, beta=0.8, gamma=0.4, keep=-0.2)
+    b3 = select_chunks(case, docs, scorer, "b3", cfg, embedder=HashingEmbedder())
+    explicit = select_chunks(case, docs, scorer, "ours", OursConfig(0.0, 0.8, 0.0, -0.2), embedder=HashingEmbedder())
+    assert [row.kept for row in b3] == [row.kept for row in explicit]

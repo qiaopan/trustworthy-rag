@@ -85,7 +85,7 @@ def run(cases, methods, embedder, scorer, generator, judge, ours=OursConfig(), b
 def main() -> None:
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--manifest", type=Path, default=ROOT / "data/manifests/emailqa_dev_30.jsonl")
-    p.add_argument("--methods", default="b0,b2", help="comma list of b0,b2,b3,ours")
+    p.add_argument("--methods", default="b0,b2", help="comma list of b0,b2raw,b2,b3,ours (b2raw = per-chunk PIGuard; b2 = window PIGuard)")
     p.add_argument("--include-clean", action="store_true", help="also run clean (no-injection) copies of each context")
     p.add_argument("--clean-only", action="store_true")
     p.add_argument("--out", type=Path, default=ROOT / "outputs/dev")
