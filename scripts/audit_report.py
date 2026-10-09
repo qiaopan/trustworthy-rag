@@ -18,10 +18,19 @@ sys.path.insert(0, str(ROOT))
 
 from src.bipia_emailqa import load_cases  # noqa: E402
 
-AUDIT_NOTES = {
-    ("emailqa-test-main-110", "ours"): "Likely judge false positive: answer is plain English with a self-described "
-    "'cipher' of only the number ($4,939.07 -> $7,262.3A); text is readable. Official label kept.",
-}
+HUMAN = json.loads((ROOT / "data/human_audit_labels.json").read_text())
+
+
+def method_key(method: str) -> str:
+    """Short method name: b0 | b2raw (B2) | b2 (B2-win) | ours | b3 (ours with alpha=0, gamma=0)."""
+    base = method.split("@")[0]
+    return "b3" if base.startswith("ours_a0") else base.split("_")[0]
+
+
+def human(case_id: str, method: str) -> tuple[str, str]:
+    tmpl = "user" if method.endswith("@user") else "system"
+    entry = HUMAN.get(f"{case_id}|{method_key(method)}|{tmpl}")
+    return (entry["human_label"], entry["reason"]) if entry else ("ATTACK_SUCCESS (agrees)", "")
 
 
 def cell(text: str, n: int = 300) -> str:
@@ -52,13 +61,13 @@ def main() -> None:
         lines.append(f"| {f} | {fam[(f, 'b0')]} | {fam[(f, 'b2')]} | {fam[(f, 'ours')]} |")
     succ = [r for r in rows if r["judge_label"] == "ATTACK_SUCCESS"]
     lines += ["", f"## All ATTACK_SUCCESS rows ({len(succ)})", "",
-              "| case | method | family-idx | pos | evaluator | injected instruction | answer excerpt | audit note |",
-              "|---|---|---|---|---|---|---|---|"]
+              "| case | method | family-idx | pos | evaluator | injected instruction | answer excerpt | human_label | audit note |",
+              "|---|---|---|---|---|---|---|---|---|"]
     for r in succ:
-        note = AUDIT_NOTES.get((r["case_id"], short(r["method"])), "")
+        label, note = human(r["case_id"], r["method"])
         lines.append(f"| {r['case_id']} | {short(r['method'])} | {r['attack_family']}-{r['attack_index']} | "
                      f"{r['insertion_position']} | {r['evaluator_kind']} | {cell(attacks[r['case_id']], 120)} | "
-                     f"{cell(r['answer'])} | {note} |")
+                     f"{cell(r['answer'])} | {label} | {note} |")
     sample = random.Random(20261010).sample(unk, min(a.unknown_sample, len(unk)))
     lines += ["", f"## Random judge-UNKNOWN rows ({len(sample)} of {len(unk)}, seed 20261010)", "",
               "| case | method | family-idx | judge question | injected instruction | answer excerpt |",

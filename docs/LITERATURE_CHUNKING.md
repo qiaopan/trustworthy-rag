@@ -28,3 +28,26 @@ Checked 2026-10-09 against the arXiv / ACL Anthology / publisher page of each so
 1. Sentence-level chunks for the defence are consistent with segment-level removal work (Chen et al. 2025; PromptLocate) and with the small-unit efficiency result (Chroma). Simple splitting is supported over semantic chunking (Qu et al.).
 2. Retrieval granularity and defence granularity are separate choices. We retrieve whole emails, which is how the poisoned email is found through its clean content, and defend at sentence level.
 3. A single-label classifier such as PIGuard needs enough context. Our window scoring (previous + current + next chunk) is a pragmatic answer; it is not taken from a paper.
+
+## C. Reported BIPIA attack success rates (reference point for our B0)
+
+Source: Yi et al., arXiv:2312.14197 v4 (HTML version, checked 2026-10-09), Table 2, "Attack success rates (ASRs) of different LLMs on BIPIA". Values are proportions.
+
+| Model | Email QA ASR | Overall ASR (all tasks) |
+|---|---|---|
+| GPT-4 | 0.1524 | 0.3103 |
+| GPT-3.5-turbo | 0.1634 | 0.2616 |
+| Llama2-Chat-70B | 0.1290 | 0.1867 |
+| Vicuna-33B | 0.1088 | 0.1617 |
+| Vicuna-13B | 0.1036 | 0.1294 |
+| Vicuna-7B | 0.0854 | 0.1049 |
+| Mistral-7B | 0.0552 | 0.0966 |
+| Average over all evaluated models | 0.0730 | 0.1179 |
+
+- **Evaluator:** the paper says evaluation combines rule-based checks, LLM-as-judge and langdetect, without naming the judge model in the text. The repository README sets the evaluation LLM default to `gpt35` (`--gpt_config_file config/gpt35.yaml`).
+- **Insertion position (figure only, no numbers in the text):** ASR is highest when the attack is at the end, then the start, then the middle.
+- **System prompt:** the paper uses each model's documented conversation template, at temperature 0. It does not report system vs no-system results; the repository provides both `gpt35`/`gpt4` and `gpt35_wosys`/`gpt4_wosys` configs.
+- **Comparison with our B0:** our main-Test B0 ASR is 30/300 = 10.0% (Qwen2.5-VL-32B, RAG over retrieved emails, judge = 72B).
+  - This is in the same range as BIPIA's Email QA numbers (5.5–16.3%).
+  - It is not directly comparable. BIPIA puts the full attacked email in the prompt; our retrieval sometimes misses the target email (attack text in context 265/300), and our judge differs from theirs.
+  - Our start > end > middle position pattern differs from BIPIA's end > start > middle (B0: start 20/101, end 6/100, middle 4/99).

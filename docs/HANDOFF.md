@@ -75,3 +75,13 @@ supplementary, not pooled with the primary Test result.
 - `docs/DECISION_LOG.md`: one table of every decision so far (problem, options, choice and reason, evidence, numbers, status). Read this first.
 - `docs/LITERATURE_CHUNKING.md`: verified citations on chunk granularity and injection-detection granularity.
 - Exploratory Dev chunk-size sweep: `scripts/sweep_granularity.py` → `outputs/dev/sweep_granularity_endpoint.jsonl`. The frozen Test protocol is unchanged.
+
+### 2026-10-09 (later): raw-PIGuard B2 and no-system template
+- Final tables: DECISIONS "Results: B2 (raw PIGuard) and no-system template"; DECISION_LOG rows 23–26.
+- Outputs (`outputs/test_main/`):
+  - System template: `main_attack.jsonl`, `main_clean.jsonl` (B0, B2-win, Ours); `b3_*.jsonl`; `b2raw_main_300.jsonl` (rebuilt from the cache), `b2raw_clean_20.jsonl`.
+  - No-system template: `wosys_main_300.jsonl`, `wosys_clean_20.jsonl`.
+  - Metrics: `metrics_final_{system,wosys}.json`; paired tests: `paired_final_{system,wosys}.{json,txt}`.
+  - Audit sheets: `audit.md`, `audit_wosys.md`.
+- Human-audit overrides: `data/human_audit_labels.json`; pass it to `scripts/compute_metrics.py --human-labels` for the secondary adjusted ASR.
+- Method keys in result files: `b2raw` = B2; `b2` = B2-win; `ours_a0…` and `b3` = B3.
