@@ -87,6 +87,9 @@ def select_chunks(case: Case, docs: list[tuple[Doc, float]], scorer, method: str
 
     Chunk risk = PIGuard score of the chunk's window (``risk_mode='window'``) or of the chunk alone."""
     chunks = [(doc.did, c) for doc, _ in docs for c in doc.chunks]
+    if method == "b1":  # B1: frozen keyword filter (pigguard.KeywordRiskScorer.PATTERN) on each chunk, no tuning
+        kw = KeywordRiskScorer()
+        return [ChunkRow(c, did, kw.score(c.text), None, kw.score(c.text) == 0) for did, c in chunks]
     if method == "b2doc":  # document-level PIGuard: whole retrieved email scored once, email dropped if >= threshold
         doc_risk = {doc.did: scorer.score(doc.text) for doc, _ in docs}
         return [ChunkRow(c, did, doc_risk[did], None, doc_risk[did] < b2_threshold) for did, c in chunks]

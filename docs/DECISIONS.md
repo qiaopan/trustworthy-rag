@@ -197,3 +197,15 @@ Report:
 - Clean accuracy with Wilson CIs, split into known-answer and unknown-answer.
 - Clean false positives: clean chunks and emails dropped.
 - Paired exact McNemar, Ours vs each method.
+
+## Pre-registration: B1 keyword filter baseline (2026-10-09, before any B1 call)
+
+**Definition.** B1 is a simple non-learned baseline. Each retrieved sentence chunk is dropped if it matches the existing, frozen keyword pattern in `src/pigguard.py` (`KeywordRiskScorer.PATTERN`):
+
+`ignore (all |previous |prior )?instructions|system prompt|reveal .*secret|jailbreak|do not answer` (case-insensitive)
+
+There is no context window and no tuning.
+
+**Runs.** The 300 attacked + 50 clean main-Test cases, system template, frozen settings, serial.
+
+**Reporting.** The same metrics as the other methods, plus paired exact McNemar tests of Ours vs B1.
