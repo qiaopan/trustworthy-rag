@@ -5,7 +5,7 @@ checks. It is not a replacement for the H200 generator or judge services.
 
 | Item | Specification |
 |---|---|
-| Computer | Apple Mac with Apple M5 chip |
+| Computer | MacBook Pro with Apple M5 chip |
 | Unified memory | 24 GB |
 | Internal storage | 1 TB |
 | Local workload | PIGuard (about 0.2B parameters), cached embeddings/risk scores, and Python reranking |
