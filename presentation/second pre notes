@@ -1,0 +1,89 @@
+第 7 页 · Experimental design
+目标：30 秒
+We use BIPIA EmailQA for our experiment.
+We chose all settings using development data, not test data. Then we tested 300 attacks from 15 types and three positions, plus 50 clean emails.
+We measure three things: attack success, answer retention, and accuracy on clean emails.
+We also use paired McNemar tests to check the differences.
+
+中文：
+我们使用 BIPIA EmailQA 进行实验。
+所有参数都在开发集上确定，而不是测试集。然后测试 300 个攻击样本和 50 封干净邮件。
+我们评估三个指标：攻击成功率、答案保留率和干净邮件准确率，并使用配对 McNemar 检验。
+第 8 页 · Main results
+目标：55 秒
+Here are our main results.
+Without defence, 30 attacks succeed. Keyword filtering has 29, and per-chunk PIGuard reduces this to 15.
+Adding context reduces attacks to just 1, but keeps only 93 out of 120 answers.
+Our method has 2 successful attacks, but keeps 108 answers. The security difference is not significant, but the 15-answer improvement is significant, with p around 0.0001.
+Whole-email filtering blocks all attacks, but keeps only 8 answers.
+On clean emails, all methods have similar accuracy, between 35 and 37 out of 50.
+
+中文：
+没有防御时，30 次攻击成功。关键词过滤为 29 次，逐块 PIGuard 降到 15 次。
+加入上下文后，攻击降到 1 次，但只能保留 93 个答案。
+我们的方法有 2 次攻击成功，但保留了 108 个答案。安全性差异不显著，但答案保留的差异显著，p 约为 0.0001。
+整封邮件过滤虽然阻止全部攻击，但只保留 8 个答案。
+所有方法在干净邮件上的准确率相近。
+第 9 页 · Security versus evidence
+目标：35 秒
+This figure shows the balance between security and answer retention.
+Left means fewer attacks, and up means more answers kept. So the top-left is best.
+Per-chunk PIGuard misses attacks. Risk-only methods lose useful answers. Whole-email filtering loses almost everything.
+Only our method performs well on both.
+We also tested different risk thresholds, from 0.01 to 0.999. None keeps more than 99 answers. This shows that relevance really helps.
+
+中文：
+这张图展示安全性与答案保留之间的平衡。
+越靠左，攻击越少；越靠上，保留的答案越多。
+逐块 PIGuard 会漏掉攻击。纯风险方法会损失答案。整封过滤几乎删除所有内容。
+只有我们的方法在两个方面表现都很好。
+我们还测试了不同的风险阈值，纯风险方法最多保留 99 个答案，说明相关度确实有效。
+第 10 页 · Ablation study
+目标：30 秒
+This table shows what each part contributes.
+Per-chunk detection reduces attacks from 30 to 15.
+Adding context reduces them from 15 to 1, but loses 26 answers.
+Adding relevance brings back 15 answers, with no significant security loss.
+So both ideas work: context improves security, and relevance keeps useful evidence.
+The keyword list and conflict term did not help.
+
+中文：
+这个表格展示每个部分的贡献。
+逐块检测使攻击从 30 降到 15。
+上下文使攻击从 15 降到 1，但损失了 26 个答案。
+相关度恢复了 15 个答案，同时没有显著降低安全性。
+因此两个想法都有效：上下文提高安全性，相关度保留证据。
+关键词列表和冲突项没有帮助。
+第 11 页 · Attack patterns and robustness
+目标：25 秒
+Most successful attacks try to change the answer format, such as using emojis, translation, or codes.
+They often appear at the start of emails.
+Short instructions are hard to detect, but context helps.
+We also tested another BIPIA prompt template. The results followed the same pattern.
+When we repeated the test, only 3 out of 300 labels changed.
+
+中文：
+成功的攻击主要尝试改变回答格式，比如 emoji、翻译或编码，通常出现在邮件开头。
+短指令很难识别，但上下文有帮助。
+另一种 BIPIA 提示模板得到相似的结果。
+重复测试时，300 个标签中只有 3 个发生变化。
+第 12 页 · Limitations
+目标：35 秒
+Our study has some limitations.
+First, we tested only one task and one model. We need more tasks and models.
+Second, we used fixed attacks. Future work should test attacks that can adapt to our method.
+Third, our 72B judge answered "unknown" about 12% of the time. Human checks could help.
+Finally, we remove whole chunks, which may lose useful text. More precise filtering could improve this.
+
+中文：
+我们的研究存在一些局限。
+第一，只测试了一个任务和一个模型，需要进一步扩展。
+第二，使用的是固定攻击，未来应该测试自适应攻击。
+第三，72B 评判模型约有 12% 的回答为 UNKNOWN，需要人工检查。
+最后，我们删除整个文本块，可能损失有用信息，更精确的过滤可以改善这个问题。
+第 13 页 · Conclusion
+目标：20 秒
+To conclude, context helps us find attacks, and relevance helps us keep useful answers.
+We should measure both security and answer retention.
+Because blocking every attack is not useful if we also delete all the evidence.
+Thank you for listening.
